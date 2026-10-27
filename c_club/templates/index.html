@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberClub | Игровые места</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">CYBER CLUB</div>
+        <a href="/" class="active">Компьютеры</a>
+        <a href="/services-page/">Услуги</a>
+        <a href="/clients-page/">Клиенты</a>
+        <a href="/admin/" class="admin-link" target="_blank">Панель управления</a>
+    </nav>
+
+    <div class="container">
+        <h1>Игровые <span>места</span></h1>
+        <div class="grid">
+            {% for comp in computers %}
+                <div class="card {{ comp.status }}">
+                    <div class="card-header">
+                        <div class="card-title">{{ comp.name }}</div>
+                        <div class="zone-badge">{{ comp.get_zone_display }}</div>
+                    </div>
+                    
+                    <div class="card-specs">
+                        <div>CPU: {{ comp.cpu }}</div>
+                        <div>GPU: {{ comp.gpu }}</div>
+                        <div>RAM: {{ comp.ram }}</div>
+                        {% if comp.monitor %}<div>Monitor: {{ comp.monitor }}</div>{% endif %}
+                    </div>
+
+                    <div class="price">{{ comp.hourly_rate }} ₽ / час</div>
+                    
+                    <div class="status {{ comp.status }}">
+                        {% if comp.status == 'free' %}Свободен
+                        {% elif comp.status == 'busy' %}Занят
+                        {% else %}Обслуживание{% endif %}
+                    </div>
+
+                    {% if comp.status == 'free' %}
+                        <button class="btn" onclick="openStartModal({{ comp.id }}, '{{ comp.name }}', '{{ comp.tariff_id|default:'' }}')">Начать сессию</button>
+                    {% elif comp.status == 'busy' %}
+                        <button class="btn danger" onclick="stopSession({{ comp.id }})">Завершить</button>
+                    {% else %}
+                        <button class="btn" disabled>Недоступен</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Модалка старта -->
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Начать сессию</h3>
+            <div class="form-group">
+                <label>ID Клиента (баланс проверяется автоматически)</label>
+                <input type="number" id="clientId" value="1">
+            </div>
+            <div class="form-group">
+                <label>Длительность (минут)</label>
+                <input type="number" id="duration" value="60">
+            </div>
+            <button class="btn" onclick="startSession()" style="margin-bottom: 10px;">ОК, запустить</button>
+            <button class="btn danger" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        async function apiRequest(url, method = 'GET', data = null) {
+            const options = { method: method, headers: { 'X-CSRFToken': csrftoken } };
+            if (data) {
+                options.headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(url, options);
+            return await response.json();
+        }
+
+        let currentComputerId = null;
+        let currentTariffId = null;
+
+        function openStartModal(id, name, tariffId) {
+            currentComputerId = id;
+            currentTariffId = tariffId || null;
+            document.getElementById('modalTitle').innerText = 'Сессия: ' + name;
+            document.getElementById('startModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('startModal').style.display = 'none';
+        }
+
+        async function startSession() {
+            const clientId = document.getElementById('clientId').value;
+            const duration = document.getElementById('duration').value;
+            
+            const payload = {
+                client_id: parseInt(clientId),
+                computer_id: currentComputerId,
+                duration_minutes: parseInt(duration)
+            };
+            
+            if (currentTariffId) {
+                payload.tariff_id = parseInt(currentTariffId);
+            }
+
+            const data = await apiRequest('/api/sessions/', 'POST', payload);
+
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('Ошибка: ' + data.message);
+            }
+        }
+
+        async function stopSession(computerId) {
+            const sessions = await apiRequest('/api/sessions/');
+            const activeSession = sessions.data.find(s => s.computer_id === computerId && s.status === 'active');
+            
+            if (!activeSession) {
+                alert('Активная сессия не найдена');
+                return;
+            }
+
+            const data = await apiRequest(`/api/sessions/${activeSession.id}/stop/`, 'POST');
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert('Ошибка при завершении');
+            }
+        }
+    </script>
+</body>
+</html>

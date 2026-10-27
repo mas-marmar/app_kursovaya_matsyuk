@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberClub | Клиенты</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">CYBER CLUB</div>
+        <a href="/">Компьютеры</a>
+        <a href="/services-page/">Услуги</a>
+        <a href="/clients-page/" class="active">Клиенты</a>
+        <a href="/admin/" class="admin-link" target="_blank">Панель управления</a>
+    </nav>
+
+    <div class="container">
+        <h1>База <span>клиентов</span></h1>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Никнейм</th>
+                        <th>Телефон</th>
+                        <th>Баланс</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td style="font-weight: 600; color: var(--primary);">{{ client.nickname|default:client.username }}</td>
+                        <td style="color: var(--text-muted);">{{ client.phone|default:"—" }}</td>
+                        <td style="font-weight: 800;">{{ client.balance }} ₽</td>
+                        <td>
+                            {% if client.is_blocked %}
+                                <span style="color: var(--danger);">Заблокирован</span>
+                            {% else %}
+                                <span style="color: var(--success);">Активен</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">Клиентов пока нет</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

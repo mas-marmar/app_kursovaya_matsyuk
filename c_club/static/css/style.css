@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+:root {
+    --bg-color: #0a0a0c;
+    --card-bg: rgba(25, 25, 30, 0.7);
+    --primary: #00f0ff;
+    --primary-hover: #00c3ff;
+    --danger: #ff0055;
+    --success: #00ff66;
+    --warning: #ffaa00;
+    --text-main: #ffffff;
+    --text-muted: #888899;
+    --border: rgba(255, 255, 255, 0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Montserrat', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.08), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(255, 0, 85, 0.08), transparent 25%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* --- Навигация --- */
+nav { 
+    background: rgba(10, 10, 12, 0.8); 
+    backdrop-filter: blur(10px);
+    padding: 0 40px; 
+    display: flex; 
+    align-items: center;
+    height: 70px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-right: 40px;
+}
+
+nav a { 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    font-weight: 600; 
+    margin-right: 30px;
+    transition: 0.3s;
+}
+
+nav a:hover, nav a.active { color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+
+.admin-link { margin-left: auto; font-size: 14px; color: #444; }
+
+/* --- Контейнер --- */
+.container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+h1 { font-size: 32px; font-weight: 800; margin-bottom: 30px; letter-spacing: 1px; }
+h1 span { color: var(--primary); }
+
+/* --- Сетка и Карточки --- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+
+.card { 
+    background: var(--card-bg); 
+    border: 1px solid var(--border); 
+    border-radius: 16px; 
+    padding: 24px; 
+    position: relative;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover { 
+    transform: translateY(-8px); 
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.1); 
+    border-color: rgba(0, 240, 255, 0.3);
+}
+
+.card.free { border-top: 4px solid var(--success); }
+.card.busy { border-top: 4px solid var(--danger); }
+.card.maintenance { border-top: 4px solid var(--warning); }
+
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+.card-title { font-size: 22px; font-weight: 800; }
+.zone-badge { font-size: 11px; text-transform: uppercase; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; color: var(--text-muted); }
+.card-specs { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; flex-grow: 1;}
+.price { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: var(--primary); }
+
+/* --- Статусы --- */
+.status { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; text-align: center; }
+.status.free { background: rgba(0, 255, 102, 0.1); color: var(--success); box-shadow: 0 0 10px rgba(0, 255, 102, 0.2); }
+.status.busy { background: rgba(255, 0, 85, 0.1); color: var(--danger); box-shadow: 0 0 10px rgba(255, 0, 85, 0.2); }
+.status.maintenance { background: rgba(255, 170, 0, 0.1); color: var(--warning); }
+
+/* --- Кнопки --- */
+.btn { 
+    background: var(--primary); 
+    color: #000; 
+    border: none; 
+    padding: 12px; 
+    border-radius: 8px; 
+    font-family: inherit;
+    font-weight: 800; 
+    font-size: 14px;
+    cursor: pointer; 
+    width: 100%; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.2s;
+}
+
+.btn:hover { background: var(--primary-hover); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+.btn.danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+.btn.danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4); }
+.btn:disabled { background: #222; color: #555; cursor: not-allowed; border-color: #333; box-shadow: none; }
+
+/* --- Таблицы (для клиентов и услуг) --- */
+.table-wrap { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { background: rgba(0,0,0,0.4); padding: 18px 24px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; }
+td { padding: 18px 24px; border-bottom: 1px solid var(--border); font-size: 15px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* --- Модальное окно --- */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: #111; border: 1px solid var(--border); padding: 40px; border-radius: 20px; width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+.modal h3 { margin-bottom: 25px; font-size: 24px; color: var(--primary); }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
+.form-group input, .form-group select { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 8px; font-family: inherit; }
+.form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 10px rgba(0,240,255,0.2); }

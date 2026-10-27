@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberClub | Услуги</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">CYBER CLUB</div>
+        <a href="/">Компьютеры</a>
+        <a href="/services-page/" class="active">Услуги</a>
+        <a href="/clients-page/">Клиенты</a>
+        <a href="/admin/" class="admin-link" target="_blank">Панель управления</a>
+    </nav>
+
+    <div class="container">
+        <h1>Бар и <span>услуги</span></h1>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Категория</th>
+                        <th style="text-align: right;">Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ service.name }}</td>
+                        <td style="color: var(--text-muted);">{{ service.get_category_display }}</td>
+                        <td style="text-align: right; color: var(--primary); font-weight: 800;">{{ service.price }} ₽</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align: center; padding: 40px; color: var(--text-muted);">Услуг пока нет</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
