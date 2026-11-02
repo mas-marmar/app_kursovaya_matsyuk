@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER ARENA | Вход</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body style="justify-content: center; align-items: center; min-height: 100vh;">
+    
+    <div class="modal-content" style="display: block; position: relative; width: 400px;">
+        <h3 style="text-align: center; margin-bottom: 30px;">Вход в систему</h3>
+        
+        {% if error %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 15px; border-radius: 8px; margin-bottom: 25px; text-align: center; font-weight: 600; font-size: 14px;">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" name="username" required placeholder="Введите логин">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" name="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn" style="margin-top: 10px;">Войти</button>
+        </form>
+    </div>
+
+</body>
+</html>

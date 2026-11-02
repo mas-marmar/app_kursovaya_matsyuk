@@ -3,16 +3,31 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CyberClub | Услуги</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER ARENA | Услуги</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <nav>
-        <div class="nav-brand">CYBER CLUB</div>
+        <div class="nav-brand">Cyber Arena</div>
         <a href="/">Компьютеры</a>
         <a href="/services-page/" class="active">Услуги</a>
-        <a href="/clients-page/">Клиенты</a>
-        <a href="/admin/" class="admin-link" target="_blank">Панель управления</a>
+        
+        {% if user.role == 'admin' or user.role == 'manager' %}
+            <a href="/clients-page/">Клиенты</a>
+        {% endif %}
+
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <span style="color: var(--text-muted); font-size: 13px;">
+                Профиль: <b style="color: var(--primary);">{{ user.nickname|default:user.username }}</b> 
+            </span>
+            
+            {% if user.is_staff %}
+                <a href="/admin/" class="admin-link" target="_blank" style="margin-left: 0;">Админка</a>
+            {% endif %}
+            
+            <a href="/logout/" class="admin-link" style="margin-left: 0; border-color: var(--danger); color: var(--danger) !important;">Выйти</a>
+        </div>
     </nav>
 
     <div class="container">
@@ -29,12 +44,12 @@
                 <tbody>
                     {% for service in services %}
                     <tr>
-                        <td style="font-weight: 600;">{{ service.name }}</td>
+                        <td style="color: #fff;">{{ service.name }}</td>
                         <td style="color: var(--text-muted);">{{ service.get_category_display }}</td>
-                        <td style="text-align: right; color: var(--primary); font-weight: 800;">{{ service.price }} ₽</td>
+                        <td style="text-align: right; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 20px;">{{ service.price }} ₽</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="3" style="text-align: center; padding: 40px; color: var(--text-muted);">Услуг пока нет</td></tr>
+                    <tr><td colspan="3" style="text-align: center; padding: 60px; color: var(--text-muted);">Услуг пока нет</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

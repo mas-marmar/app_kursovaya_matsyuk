@@ -4,20 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberClub | Игровые места</title>
+    <title>CYBER ARENA | Игровые места</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <nav>
-        <div class="nav-brand">CYBER CLUB</div>
+        <div class="nav-brand">Cyber Arena</div>
         <a href="/" class="active">Компьютеры</a>
         <a href="/services-page/">Услуги</a>
-        <a href="/clients-page/">Клиенты</a>
-        <a href="/admin/" class="admin-link" target="_blank">Панель управления</a>
+        
+        <!-- Вкладку Клиенты видят только админы и менеджеры -->
+        {% if user.role == 'admin' or user.role == 'manager' %}
+            <a href="/clients-page/">Клиенты</a>
+        {% endif %}
+
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <span style="color: var(--text-muted); font-size: 13px;">
+                Профиль: <b style="color: var(--primary);">{{ user.nickname|default:user.username }}</b> 
+                <span style="font-size: 11px; opacity: 0.7;">({{ user.get_role_display }})</span>
+            </span>
+            
+            {% if user.is_staff %}
+                <a href="/admin/" class="admin-link" target="_blank" style="margin-left: 0;">Админка</a>
+            {% endif %}
+            
+            <a href="/logout/" class="admin-link" style="margin-left: 0; border-color: var(--danger); color: var(--danger) !important;">Выйти</a>
+        </div>
     </nav>
 
     <div class="container">
-        <h1>Игровые <span>места</span></h1>
+        <h1>Пришло время <br><span>управлять игрой</span></h1>
+        
         <div class="grid">
             {% for comp in computers %}
                 <div class="card {{ comp.status }}">
@@ -27,13 +44,13 @@
                     </div>
                     
                     <div class="card-specs">
-                        <div>CPU: {{ comp.cpu }}</div>
-                        <div>GPU: {{ comp.gpu }}</div>
-                        <div>RAM: {{ comp.ram }}</div>
-                        {% if comp.monitor %}<div>Monitor: {{ comp.monitor }}</div>{% endif %}
+                        <div>Процессор <span>{{ comp.cpu|default:"—" }}</span></div>
+                        <div>Видеокарта <span>{{ comp.gpu|default:"—" }}</span></div>
+                        <div>Память <span>{{ comp.ram|default:"—" }}</span></div>
+                        {% if comp.monitor %}<div>Монитор <span>{{ comp.monitor }}</span></div>{% endif %}
                     </div>
 
-                    <div class="price">{{ comp.hourly_rate }} ₽ / час</div>
+                    <div class="price">{{ comp.hourly_rate }} ₽ <span>/ час</span></div>
                     
                     <div class="status {{ comp.status }}">
                         {% if comp.status == 'free' %}Свободен
@@ -42,8 +59,9 @@
                     </div>
 
                     {% if comp.status == 'free' %}
-                        <button class="btn" onclick="openStartModal({{ comp.id }}, '{{ comp.name }}', '{{ comp.tariff_id|default:'' }}')">Начать сессию</button>
+                        <button class="btn" onclick="openStartModal({{ comp.id }}, '{{ comp.name }}', '{{ comp.tariff_id|default:'' }}')">Забронировать</button>
                     {% elif comp.status == 'busy' %}
+                        <!-- Кнопка завершения доступна всем, но API проверит права (клиент завершит только свою) -->
                         <button class="btn danger" onclick="stopSession({{ comp.id }})">Завершить</button>
                     {% else %}
                         <button class="btn" disabled>Недоступен</button>
@@ -57,15 +75,26 @@
     <div class="modal" id="startModal">
         <div class="modal-content">
             <h3 id="modalTitle">Начать сессию</h3>
+            
+            <!-- Поле ID клиента показываем только админам -->
+            {% if user.role == 'admin' or user.role == 'manager' %}
             <div class="form-group">
-                <label>ID Клиента (баланс проверяется автоматически)</label>
-                <input type="number" id="clientId" value="1">
+                <label>ID Клиента</label>
+                <input type="number" id="clientId" value="2">
             </div>
+            {% else %}
+                <!-- Для клиента ID скрыт, он берется из сессии автоматически -->
+                <input type="hidden" id="clientId" value="{{ user.id }}">
+                <div style="margin-bottom: 25px; font-size: 14px; color: var(--text-muted);">
+                    Сессия будет открыта на ваше имя: <b style="color: #fff;">{{ user.nickname|default:user.username }}</b>
+                </div>
+            {% endif %}
+            
             <div class="form-group">
                 <label>Длительность (минут)</label>
-                <input type="number" id="duration" value="60">
+                <input type="number" id="duration" value="60" min="30" step="30">
             </div>
-            <button class="btn" onclick="startSession()" style="margin-bottom: 10px;">ОК, запустить</button>
+            <button class="btn" onclick="startSession()" style="margin-bottom: 15px;">Подтвердить</button>
             <button class="btn danger" onclick="closeModal()">Отмена</button>
         </div>
     </div>
@@ -121,33 +150,34 @@
                 duration_minutes: parseInt(duration)
             };
             
-            if (currentTariffId) {
-                payload.tariff_id = parseInt(currentTariffId);
-            }
+            if (currentTariffId) { payload.tariff_id = parseInt(currentTariffId); }
 
             const data = await apiRequest('/api/sessions/', 'POST', payload);
 
             if (data.status === 'success') {
                 location.reload();
             } else {
-                alert('Ошибка: ' + data.message);
+                alert('Ошибка: ' + (data.message || 'Проверьте баланс или ID клиента'));
             }
         }
 
         async function stopSession(computerId) {
+            // Получаем список доступных сессий (клиент получит только свои)
             const sessions = await apiRequest('/api/sessions/');
+            
+            // Ищем активную сессию именно для этого компьютера
             const activeSession = sessions.data.find(s => s.computer_id === computerId && s.status === 'active');
             
-            if (!activeSession) {
-                alert('Активная сессия не найдена');
-                return;
+            if (!activeSession) { 
+                alert('У вас нет активной сессии на этом компьютере или она принадлежит другому игроку'); 
+                return; 
             }
 
             const data = await apiRequest(`/api/sessions/${activeSession.id}/stop/`, 'POST');
             if (data.status === 'success') {
                 location.reload();
             } else {
-                alert('Ошибка при завершении');
+                alert('Ошибка при завершении: ' + data.message);
             }
         }
     </script>
