@@ -21,6 +21,8 @@ from .forms import (
     ServiceForm, BookingForm
 )
 
+def landing_page(request):
+    return render(request, 'landing.html')
 
 # ==========================================================
 #  ДЕКОРАТОР ДЛЯ ПРОВЕРКИ РОЛЕЙ
@@ -77,13 +79,22 @@ def logout_page(request):
 
 # ==========================================================
 #  HTML СТРАНИЦЫ (TEMPLATES)
-# ==========================================================
+# ==========================================================    
 
 @role_required(['client', 'admin', 'manager', 'technician'])
 def index_page(request):
     """Главная страница со списком компьютеров"""
     computers = Computer.objects.all().order_by('name')
-    return render(request, 'index.html', {'computers': computers})
+    
+    clients = []
+    if request.user.role in ['admin', 'manager']:
+        clients = User.objects.filter(role='client').order_by('nickname')
+
+    context = {
+        'computers': computers,
+        'clients': clients,
+    }
+    return render(request, 'index.html', context)
 
 
 @role_required(['client', 'admin', 'manager', 'technician'])

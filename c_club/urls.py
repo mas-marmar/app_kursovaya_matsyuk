@@ -2,15 +2,28 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # ==========================================
+    #  HTML СТРАНИЦЫ
+    # ==========================================
+    
+    # Главная витрина (Лендинг)
+    path('', views.landing_page, name='landing'),
+
+    # Аутентификация
     path('login/', views.login_page, name='login_page'),
     path('logout/', views.logout_page, name='logout'),
-    
-    # --- HTML Страницы ---
-    path('', views.index_page, name='index'),
+
+    # Рабочая зона (Дашборд, Услуги, Клиенты)
+    path('arena/', views.index_page, name='index'),
     path('services-page/', views.services_page, name='services-page'),
     path('clients-page/', views.clients_page, name='clients-page'),
 
-    # --- API Маршруты ---
+
+    # ==========================================
+    #  API МАРШРУТЫ
+    # ==========================================
+    
+    # Регистрация
     path('api/register/', views.RegisterView.as_view()),
     
     # Пользователи

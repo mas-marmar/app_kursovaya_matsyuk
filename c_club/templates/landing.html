@@ -1,0 +1,270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER ARENA | Сеть киберспортивных клубов</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { overflow-x: hidden; }
+        
+        /* Главный экран */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.15) 0%, transparent 60%);
+            padding: 0 20px;
+        }
+        .hero h1 {
+            font-size: 72px;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            text-shadow: 0 0 40px rgba(138, 43, 226, 0.4);
+        }
+        .hero p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 45px;
+            line-height: 1.6;
+        }
+        .hero .btn {
+            width: auto;
+            padding: 22px 60px;
+            font-size: 18px;
+        }
+
+        /* Блок преимуществ */
+        .features {
+            padding: 100px 5%;
+            background: var(--bg-panel);
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: #07070a;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.1);
+        }
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+            font-weight: 800;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Сетка клубов (Арены) */
+        .locations {
+            padding: 100px 5%;
+        }
+        .locations h2 {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 60px;
+            font-style: italic;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .location-card {
+            background: var(--bg-panel);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .location-card:hover {
+            background: #1a1a20;
+        }
+        .location-card .info h4 { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+        .location-card .info p { font-size: 13px; color: var(--text-muted); }
+        .location-card .status { color: var(--success); font-weight: 900; font-size: 14px; background: rgba(16, 185, 129, 0.1); padding: 5px 10px; border-radius: 8px;}
+
+        /* Подвал */
+        footer {
+            background: #000;
+            padding: 60px 5%;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        footer p { color: var(--text-muted); font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 42px; }
+            .hero .btn { width: 100%; padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-brand" style="text-decoration: none;">Cyber Arena</a>
+        
+        {% if user.is_authenticated %}
+            <a href="/arena/" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Компьютеры</a>
+            <a href="/services-page/" class="{% if request.resolver_match.url_name == 'services-page' %}active{% endif %}">Услуги</a>
+            
+            {% if user.role == 'admin' or user.role == 'manager' %}
+                <a href="/clients-page/" class="{% if request.resolver_match.url_name == 'clients-page' %}active{% endif %}">Клиенты</a>
+            {% endif %}
+        {% endif %}
+
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            {% if user.is_authenticated %}
+                <span style="color: var(--text-muted); font-size: 13px;">
+                    Профиль: <b style="color: var(--primary);">{{ user.nickname|default:user.username }}</b> 
+                </span>
+                
+                {% if user.is_staff %}
+                    <a href="/admin/" class="admin-link" target="_blank" style="margin-left: 0;">Админка</a>
+                {% endif %}
+                
+                <a href="/logout/" class="admin-link" style="margin-left: 0; border-color: var(--danger); color: var(--danger) !important;">Выйти</a>
+            {% else %}
+                <a href="/login/" class="btn" style="padding: 10px 20px; width: auto; font-size: 13px;">Вход</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Главный экран -->
+    <section class="hero">
+        <h1>Сеть киберспортивных<br><span>арен</span> по всей России</h1>
+        <p>Место, куда приходят за атмосферой, комьюнити и качественным отдыхом. Высокий уровень комфорта, мощные ПК и атмосфера настоящего киберспорта.</p>
+        <a href="/arena/" class="btn">Забронировать место</a>
+    </section>
+
+    <!-- Преимущества -->
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Топовое железо</h3>
+                <p>Мощные видеокарты RTX серии, мониторы с частотой 240Гц и профессиональная периферия. Никаких лагов и фризов.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Комфорт и атмосфера</h3>
+                <p>Удобные кресла, кондиционеры, звукоизоляция и стильный дизайн. Мы создали идеальные условия для игры.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Работаем 24/7</h3>
+                <p>Наши двери открыты круглосуточно. Ночные пакеты, турниры и дружеские матчи — в любое время суток.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Сетка клубов -->
+    <section class="locations">
+        <h2>Наши <span>Арены</span></h2>
+        <div class="locations-grid">
+            <div class="location-card">
+                <div class="info"><h4>Москва, Щёлковская</h4><p>ул. Щёлковское шоссе, 15</p></div>
+                <div class="status">24/7</div>
+            </div>
+            <div class="location-card">
+                <div class="info"><h4>Санкт-Петербург, Невский</h4><p>Невский проспект, 100</p></div>
+                <div class="status">24/7</div>
+            </div>
+            <div class="location-card">
+                <div class="info"><h4>Казань, Декабристов</h4><p>ул. Декабристов, 85</p></div>
+                <div class="status">24/7</div>
+            </div>
+            <div class="location-card">
+                <div class="info"><h4>Сургут, Ленина</h4><p>ул. Ленина, 20</p></div>
+                <div class="status">24/7</div>
+            </div>
+            <div class="location-card">
+                <div class="info"><h4>Екатеринбург, Союзная</h4><p>ул. Союзная, 10</p></div>
+                <div class="status">24/7</div>
+            </div>
+            <div class="location-card">
+                <div class="info"><h4>Новосибирск, Богаткова</h4><p>ул. Богаткова, 45</p></div>
+                <div class="status">24/7</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 CYBER ARENA. Сеть компьютерных клубов. Все права защищены.</p>
+    </footer>
+        <!-- Скрипт кастомного курсора -->
+    <script>
+        // Работает только на устройствах с мышкой (не на телефонах)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const dot = document.createElement('div');
+            const outline = document.createElement('div');
+            dot.classList.add('cursor-dot');
+            outline.classList.add('cursor-outline');
+            document.body.appendChild(dot);
+            document.body.appendChild(outline);
+
+            let mouseX = 0, mouseY = 0;
+            let outlineX = 0, outlineY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Точка двигается мгновенно
+                dot.style.left = mouseX + 'px';
+                dot.style.top = mouseY + 'px';
+            });
+
+            // Плавное движение кольца (анимация)
+            function animate() {
+                // Задержка (чем меньше коэффициент, тем плавнее)
+                outlineX += (mouseX - outlineX) * 0.15;
+                outlineY += (mouseY - outlineY) * 0.15;
+                
+                outline.style.left = outlineX + 'px';
+                outline.style.top = outlineY + 'px';
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Увеличение при наведении на ссылки и кнопки
+            const clickables = document.querySelectorAll('a, button, input, select, .card');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    dot.classList.add('hover');
+                    outline.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    dot.classList.remove('hover');
+                    outline.classList.remove('hover');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

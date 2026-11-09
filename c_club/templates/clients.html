@@ -9,21 +9,31 @@
 </head>
 <body>
     <nav>
-        <div class="nav-brand">Cyber Arena</div>
-        <a href="/">Компьютеры</a>
-        <a href="/services-page/">Услуги</a>
-        <a href="/clients-page/" class="active">Клиенты</a>
+        <a href="/" class="nav-brand" style="text-decoration: none;">Cyber Arena</a>
+        
+        {% if user.is_authenticated %}
+            <a href="/arena/" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Компьютеры</a>
+            <a href="/services-page/" class="{% if request.resolver_match.url_name == 'services-page' %}active{% endif %}">Услуги</a>
+            
+            {% if user.role == 'admin' or user.role == 'manager' %}
+                <a href="/clients-page/" class="{% if request.resolver_match.url_name == 'clients-page' %}active{% endif %}">Клиенты</a>
+            {% endif %}
+        {% endif %}
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
-            <span style="color: var(--text-muted); font-size: 13px;">
-                Профиль: <b style="color: var(--primary);">{{ user.nickname|default:user.username }}</b> 
-            </span>
-            
-            {% if user.is_staff %}
-                <a href="/admin/" class="admin-link" target="_blank" style="margin-left: 0;">Админка</a>
+            {% if user.is_authenticated %}
+                <span style="color: var(--text-muted); font-size: 13px;">
+                    Профиль: <b style="color: var(--primary);">{{ user.nickname|default:user.username }}</b> 
+                </span>
+                
+                {% if user.is_staff %}
+                    <a href="/admin/" class="admin-link" target="_blank" style="margin-left: 0;">Админка</a>
+                {% endif %}
+                
+                <a href="/logout/" class="admin-link" style="margin-left: 0; border-color: var(--danger); color: var(--danger) !important;">Выйти</a>
+            {% else %}
+                <a href="/login/" class="btn" style="padding: 10px 20px; width: auto; font-size: 13px;">Вход</a>
             {% endif %}
-            
-            <a href="/logout/" class="admin-link" style="margin-left: 0; border-color: var(--danger); color: var(--danger) !important;">Выйти</a>
         </div>
     </nav>
 
@@ -60,5 +70,55 @@
             </table>
         </div>
     </div>
+        <!-- Скрипт кастомного курсора -->
+    <script>
+        // Работает только на устройствах с мышкой (не на телефонах)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const dot = document.createElement('div');
+            const outline = document.createElement('div');
+            dot.classList.add('cursor-dot');
+            outline.classList.add('cursor-outline');
+            document.body.appendChild(dot);
+            document.body.appendChild(outline);
+
+            let mouseX = 0, mouseY = 0;
+            let outlineX = 0, outlineY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Точка двигается мгновенно
+                dot.style.left = mouseX + 'px';
+                dot.style.top = mouseY + 'px';
+            });
+
+            // Плавное движение кольца (анимация)
+            function animate() {
+                // Задержка (чем меньше коэффициент, тем плавнее)
+                outlineX += (mouseX - outlineX) * 0.15;
+                outlineY += (mouseY - outlineY) * 0.15;
+                
+                outline.style.left = outlineX + 'px';
+                outline.style.top = outlineY + 'px';
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Увеличение при наведении на ссылки и кнопки
+            const clickables = document.querySelectorAll('a, button, input, select, .card');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    dot.classList.add('hover');
+                    outline.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    dot.classList.remove('hover');
+                    outline.classList.remove('hover');
+                });
+            });
+        }
+    </script>
 </body>
 </html>

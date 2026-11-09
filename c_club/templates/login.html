@@ -30,7 +30,60 @@
             </div>
             <button type="submit" class="btn" style="margin-top: 10px;">Войти</button>
         </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 14px;">← Вернуться на главную</a>
+        </div>
     </div>
+        <!-- Скрипт кастомного курсора -->
+    <script>
+        // Работает только на устройствах с мышкой (не на телефонах)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const dot = document.createElement('div');
+            const outline = document.createElement('div');
+            dot.classList.add('cursor-dot');
+            outline.classList.add('cursor-outline');
+            document.body.appendChild(dot);
+            document.body.appendChild(outline);
 
+            let mouseX = 0, mouseY = 0;
+            let outlineX = 0, outlineY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Точка двигается мгновенно
+                dot.style.left = mouseX + 'px';
+                dot.style.top = mouseY + 'px';
+            });
+
+            // Плавное движение кольца (анимация)
+            function animate() {
+                // Задержка (чем меньше коэффициент, тем плавнее)
+                outlineX += (mouseX - outlineX) * 0.15;
+                outlineY += (mouseY - outlineY) * 0.15;
+                
+                outline.style.left = outlineX + 'px';
+                outline.style.top = outlineY + 'px';
+                
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Увеличение при наведении на ссылки и кнопки
+            const clickables = document.querySelectorAll('a, button, input, select, .card');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    dot.classList.add('hover');
+                    outline.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    dot.classList.remove('hover');
+                    outline.classList.remove('hover');
+                });
+            });
+        }
+    </script>
 </body>
 </html>
